@@ -12,6 +12,7 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
+app.use(express.static('public')); //the request for static files (eg 7habits.jpg) must be searched in the public folder
 
 const tempDir = path.join(__dirname, 'temp');
 
@@ -27,7 +28,7 @@ const upload = multer({
 });
 
 app.get('/api/books', (_, res) => {
-	res.json(books);
+	res.json(booksData);
 });
 
 /*
@@ -44,7 +45,9 @@ upload.array('cover', 8);
 app.post('/api/books', upload.single('cover'), async (req, res) => {
 	const { path: tempPath, filename } = req.file;
 	const resultPath = path.join(__dirname, 'public', 'books', filename);
-	const coverPublicPath = path.join('public', 'books', filename);
+	const coverPublicPath = path.join('books', filename); //don't use a public folder in the path because express middleware only looks for static files in the public folder
+
+	// console.log('coverPublicPath :>> ', coverPublicPath);
 
 	await fs.rename(tempPath, resultPath);
 
